@@ -2,12 +2,17 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).resolve().parent
 DATA_DIR = PROJECT_DIR / "data"
 BLOB_DIR = DATA_DIR / "blobs"
 DB_PATH = DATA_DIR / "notes.db"
+
+# power-of-habit/ can't be a package name (hyphen); the poh package lives
+# inside it and this shim makes `import poh` work everywhere.
+sys.path.insert(0, str(PROJECT_DIR / "power-of-habit"))
 
 
 def _load_env() -> None:
@@ -63,3 +68,7 @@ COMPASS_API_URL = os.environ.get("COMPASS_API_URL", "http://localhost:8010")
 COMPASS_API_KEY = os.environ.get("HAB7BOT_INTERNAL_API_KEY", "")
 
 TIMEZONE = os.environ.get("TIMEZONE", "America/Los_Angeles")
+
+# power-of-habit quip miner
+POH_ENABLED = os.environ.get("POH_ENABLED", "1").lower() not in ("0", "false", "")
+POH_MORNING_HOUR = int(os.environ.get("POH_MORNING_HOUR", "8") or 8)

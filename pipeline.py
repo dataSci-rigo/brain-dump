@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 
 import config
 import db
+import poh
 from ai import correct, decode, search_interp
 from ai import client as ai_client
 from integrations import compass, stm
@@ -23,7 +24,7 @@ COMMANDS = [
     ("recent", "list recent notes: /recent [n]"),
     ("note", "show a note in full: /note 12"),
     ("help", "how this works"),
-]
+] + poh.COMMANDS
 
 HELP_TEXT = (
     "Send me anything — a photo of a handwritten note, a screenshot, or plain "
@@ -101,6 +102,9 @@ def _handle_command(inbound: Inbound, text: str) -> list[OutText]:
         if note is None:
             return [OutText(f"No note #{arg}.")]
         return [OutText(_format_note_full(note))]
+    res = poh.handle_command(cmd, arg)
+    if res is not None:
+        return res
     return [OutText(f"Unknown command /{cmd}. Try /help.")]
 
 
@@ -189,6 +193,12 @@ def _decode_and_respond(note_id: int, inbound: Inbound) -> list[OutText]:
                       Button("→ Compass", f"r:c:{item_id}"),
                       Button("dismiss", f"r:d:{item_id}")]],
         ))
+
+    if config.POH_ENABLED:
+        try:
+            out.extend(poh.scan_after_decode(note_id))
+        except Exception:
+            logger.exception("poh scan failed for note %s", note_id)
     return out
 
 
@@ -297,6 +307,8 @@ def _handle_correction(inbound: Inbound, note_id: int, instruction: str) -> list
 
 def handle_callback(data: str) -> tuple[str, str | None]:
     """Returns (ack/toast text, replacement text for the message or None)."""
+    if data.startswith("p:"):
+        return poh.handle_callback(data)
     parts = data.split(":")
     if len(parts) != 3 or parts[0] != "r":
         return ("?", None)

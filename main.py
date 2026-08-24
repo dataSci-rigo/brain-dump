@@ -33,6 +33,13 @@ def main() -> None:
 
     db.init()
     logger.info("DB ready at %s", config.DB_PATH)
+
+    if config.POH_ENABLED:
+        import poh
+        poh.init_db()
+        threading.Thread(target=poh.start, name="poh-scheduler",
+                         daemon=True).start()
+        logger.info("power-of-habit scheduler started")
     logger.info("STM integration: %s", config.STM_DB_PATH or "off")
     logger.info("Compass integration: %s / %s",
                 config.COMPASS_API_URL, config.COMPASS_DB_PATH or "no local read")

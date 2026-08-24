@@ -17,6 +17,17 @@ note (or plain text) via **Telegram** or **Discord**; the bot:
 Search federates across all three systems: brain-dump notes, STM tasks,
 Compass tasks.
 
+## power-of-habit (quip miner)
+
+`power-of-habit/poh/` mines dumps for your **whys** and starting **fears**,
+rewrites them as quips in your voice, and sends them with 👍/👎 buttons —
+👍 keeps a quip and puts it into the 🌅 morning-mantra rotation. A web-search
+taxonomy of common fears/whys bootstraps on first run and refreshes weekly;
+a daily sweep scans edited/older notes. Commands: `/quips /fears /whys /poh`.
+Opt out with `POH_ENABLED=0`; mantra hour via `POH_MORNING_HOUR` (default 8).
+See `power-of-habit/HABIT_ENGINE_PLAN.md` for the full Power-of-Habit
+implementation sub-plan (praxis vs wp_instinct vs standalone).
+
 ## Layout
 
 - `main.py` — entry; Discord owns the asyncio loop, Telegram sync poller in a daemon thread (Telegram-only if no Discord token)
